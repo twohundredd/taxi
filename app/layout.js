@@ -1,6 +1,6 @@
 import { Montserrat } from 'next/font/google';
 import "./globals.css";
-import { ClerkProvider } from "@clerk/nextjs";
+// import { ClerkProvider } from "@clerk/nextjs";
 import Header from "../components/Header";
 
 const monserrat = Montserrat({ subsets: ['latin'] })
@@ -12,13 +12,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <ClerkProvider>
+    // <ClerkProvider>
     <html lang="en">
       <body className={monserrat.className}>
         <Header />
         {children}
       </body>
     </html>
-    </ClerkProvider>
+    // </ClerkProvider>
   );
 }

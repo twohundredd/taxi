@@ -1,6 +1,6 @@
 'use client'
 import Image from "next/image";
-import { UserButton } from '@clerk/nextjs'
+// import { UserButton } from '@clerk/nextjs'
 
 const DotIcon = () => {
   return (
@@ -13,7 +13,7 @@ const DotIcon = () => {
 export default function Home() {
   return (
     <header>
-      <UserButton>
+      {/* <UserButton>
         <UserButton.MenuItems>
           <UserButton.Action label="Help" labelIcon={<DotIcon />} open="help" />
         </UserButton.MenuItems>
@@ -24,7 +24,7 @@ export default function Home() {
             <p>This is the custom help page</p>
           </div>
         </UserButton.UserProfilePage>
-      </UserButton>
+      </UserButton> */}
     </header>
   )
 }
