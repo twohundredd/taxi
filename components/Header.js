@@ -1,5 +1,5 @@
 'use client'
-// import { UserButton } from '@clerk/nextjs'
+import { UserButton } from '@clerk/nextjs'
 import Image from 'next/image'
 import React from 'react'
 const headerMenu =
@@ -34,7 +34,7 @@ export default function Header() {
                     ))}
                 </div>
             </div>
-            {/* <UserButton /> */}
+            <UserButton />
         </div>
     )
 }

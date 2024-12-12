@@ -13,4 +13,40 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+.gmnoprint a,
+.gmnoprint span {
+  display: none;
+}
+
+.gmnoprint div {
+  background: none;
+}
+
+.loader {
+  opacity: 0;
+  animation: fade 0.4s ease-in forwards;
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.hide-scroll-bar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.hide-scroll-bar::-webkit-scrollbar {
+  display: none;
 }
