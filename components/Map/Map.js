@@ -12,10 +12,11 @@ export const useIsFirstRender = () => {
 const DEFAULT_WIDTH = 400;
 const DEFAULT_HEIGHT = 1200;
 
-const Map = ({ width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT }) => {
+const Map = ({ width = DEFAULT_WIDTH, height = DEFAULT_HEIGHT, selectPosition }) => {
+  console.log("Map component - selectPosition:", selectPosition);
   return (
     <div className="map-container" style={{ width: `${width}px`, height: `${height}px` }}>
-      <DynamicMap />
+      <DynamicMap selectPosition={selectPosition} />
     </div>
   );
 };

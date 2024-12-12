@@ -1,20 +1,50 @@
-import React, { useState } from 'react'
-import Image from 'next/image'
-import ListItemButton from '@mui/material/ListItemButton';
+import React, { useState, useCallback } from 'react';
+import Image from 'next/image';
+import { useSelectPosition } from '../Context';
+import ListItemButton from '@mui/material/ListItemButton'; // Добавлен импорт
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import { useSelectPosition } from '../Context'; // Импорт хука
 
 const NOMINATIM_BASE_URL = "https://nominatim.openstreetmap.org/search?";
 
 const SearchSection = () => {
-  const { selectPosition, setSelectPosition } = useSelectPosition();
-  console.log('This selectPosition Date: ', selectPosition);
-  // const [searchTextDeparture, setSearchTextDeparture,
-  //       searchTextArrival, setSearchTextArrival ] = useState("");
-  const [searchText, setSearchText] = useState("");
+  const { setSelectPosition } = useSelectPosition();
+  const [searchText, setSearchText] = useState('');
   const [listPlace, setListPlace] = useState([]);
+  const [error, setError] = useState(null);
+
+  const handleSearch = async () => {
+    setError(null);
+    try {
+      const params = {
+        q: searchText,
+        format: 'json',
+        addressdetails: 1,
+        polygon_geojson: 0,
+      };
+      const queryString = new URLSearchParams(params).toString();
+      const response = await fetch(`${NOMINATIM_BASE_URL}${queryString}`);
+      if (!response.ok) {
+        const errorData = await response.json(); // Try parsing error response
+        const errorMessage = errorData.error || `HTTP error! status: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+      const data = await response.json();
+      setListPlace(data);
+    } catch (error) {
+      setError(error.message);
+    }
+  };
+
+  const handleSelectLocation = useCallback((item) => {
+    console.log("handleSelectLocation - BEFORE setSelectPosition:", item);
+    if (item && item.lat && item.lon) {
+      setSelectPosition({ lat: parseFloat(item.lat), lon: parseFloat(item.lon) });
+    }
+    console.log("handleSelectLocation - AFTER setSelectPosition:", item);
+  }, [setSelectPosition]);
+
   return (
     <div>
       <div className='p-2 md:p-6 rounded-xl'>
@@ -36,10 +66,9 @@ const SearchSection = () => {
               placeholder='Текущий адрес'
               value={searchText}
               // value={searchTextDeparture}
-              onChange={(event) => {
-                  setSearchText(event.target.value);
+              onChange={e => setSearchText(e.target.value)}
                   // setSearchTextDeparture(event.target.value);
-              }}
+              
           />
         </div>
         
@@ -52,10 +81,7 @@ const SearchSection = () => {
               placeholder='Куда поедем?'
               value={searchText}
               // value={searchTextArrival}
-              onChange={(event) => {
-                setSearchText(event.target.value);
-                // setSearchTextArrival(event.target.value);
-              }}
+              onChange={e => setSearchText(e.target.value)}
           />
         </div>
         
@@ -68,57 +94,26 @@ const SearchSection = () => {
 
         <button className='p-3 bg-black left-5 w-11/12 z-10 mt-5
         text-white rounded-lg' 
-          onClick={() => {
-          // Search
-          const params = {
-              q: searchText,
-              format: 'json',
-              addressdetails: 1,
-              polygon_geojson: 0
-          };
-          const queryString = new URLSearchParams(params).toString();
-          const requestOptions = {
-              method: "GET",
-              redirect: "follow"
-          };
-          fetch(`${NOMINATIM_BASE_URL}${queryString}`, requestOptions)
-              .then((response) => response.text())
-              .then((result) => {
-                  console.log(JSON.parse(result));
-                  setListPlace(JSON.parse(result));
-              })
-              .catch((err) => console.log("err: ", err));
-          }}>
+        onClick={handleSearch}>
           Поиск авто
         </button>
-      </div>
-      <div>
-        
-        <nav aria-label="main mailbox folders">
-          {listPlace.map((item) => {
-            return (
-              <div key={item?.osm_id || index}>
-                <ListItemButton onClick={() => {
-                  setSelectPosition(item);
-                  // console.log(setSelectPosition(item));
-                }}>
-                  <ListItemIcon>
-                    <img src='./finalMarker_map.png'
-                      alt='Final Marker'
-                      className='w-5 h-5'
-                    />
-                  </ListItemIcon>
-                  <ListItemText primary={item?.display_name} />
-                </ListItemButton>
-                <Divider />
-              </div>
-            );
-          })}
-        </nav>
-
-      </div>
+        {error && <p style={{ color: 'red' }}>{error}</p>}
+      <ul>
+        {listPlace.map((item, index) => (
+          <li key={item?.osm_id || index}>
+            <ListItemButton onClick={() => handleSelectLocation(item)}> {/* Здесь был ListItemButton */}
+              <ListItemIcon>
+                <img src='./finalMarker_map.png' alt='Final Marker' className='w-5 h-5' />
+              </ListItemIcon>
+              <ListItemText primary={item?.display_name} />
+            </ListItemButton>
+            <Divider />
+          </li>
+        ))}
+      </ul>
+    </div>
     </div>
   );
-}
+};
 
 export default SearchSection

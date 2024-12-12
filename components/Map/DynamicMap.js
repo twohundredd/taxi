@@ -9,52 +9,54 @@ const icon = L.icon({ iconUrl: './myMarker_map.png', iconSize: [40, 40] });
 const position = [53.214923906919594, 50.158586620166396];
 const zoom = 13;
 
-const ResetCenterView = ({ selectPosition }) => {
-  const map = useMap();
-  useEffect(() => {
-    console.log('selectPosition in ResetCenterView:', selectPosition); //Check this
+const MapComponent = ({ selectPosition }) => {
+  console.log("MapComponent - selectPosition:", selectPosition);
+  const [map, setMap] = useState(null);
+  const mapRef = useRef(null);
+
+  // const locationSelection = selectPosition && [
+  //   Number.isNaN(parseFloat(selectPosition.lat)) ? 0 : parseFloat(selectPosition.lat), // Проверка на NaN
+  //   Number.isNaN(parseFloat(selectPosition.lon)) ? 0 : parseFloat(selectPosition.lon), // Проверка на NaN
+  // ];
+
+  const locationSelection = useMemo(() => {
     if (selectPosition) {
-      map.setView(L.latLng(parseFloat(selectPosition.lat), parseFloat(selectPosition.lon)), map.getZoom(), { animate: true });
+      return [parseFloat(selectPosition.lat), parseFloat(selectPosition.lon)];
     }
+    return null;
+  }, [selectPosition]);
+
+  const markerRef = useRef(null);
+
+  useEffect(() => {
+    if (!map) return;
+
+    const updateMapView = () => {
+      const lat = parseFloat(selectPosition?.lat) || 0;
+      const lon = parseFloat(selectPosition?.lon) || 0;
+
+      if (lat && lon) {
+        map.setView([lat, lon], map.getZoom());
+        mapRef.current = map; //Store map object
+      }
+    };
+
+    updateMapView(); //Call updateMapView after component mount
   }, [selectPosition, map]);
-  return null;
-};
 
-const MapComponent = ({ selectPosition, setPosition }) => {
-    const [map, setMap] = useState(null);
-    const locationSelection = [parseFloat(selectPosition?.lat), parseFloat(selectPosition?.lon)];
-    console.log('selectPosition FROM DynamicMap.js: ', selectPosition)
-    const markerRef = useRef(null);
-
-    const eventHandlers = useMemo(() => ({
-        dragend() {
-            const marker = markerRef.current;
-            if (marker) {
-                setPosition(marker.getLatLng());
-            }
-        },
-    }), []);
-
-    useEffect(() => {
-        console.log("selectPosition in MapComponent", selectPosition);
-    }, [selectPosition]);
-
-
-    return (
-        <MapContainer className={'w-full h-1/2 rounded-lg'} center={position} zoom={zoom} scrollWheelZoom={false} ref={el => setMap(el)}>
-            <TileLayer
+  return (
+    <MapContainer className={'w-full h-1/2 rounded-lg'} center={position} zoom={zoom} scrollWheelZoom={false} ref={setMap}>
+      <TileLayer
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
             />
-            {selectPosition && (
-                <Marker position={locationSelection}
-                eventHandlers={eventHandlers} draggable ref={markerRef} icon={icon}>
-                    <Popup>Вы здесь!</Popup>
-                </Marker>
-            )}
-            {map && <ResetCenterView selectPosition={selectPosition} />}
-        </MapContainer>
-    );
+      {selectPosition && (
+        <Marker position={locationSelection} ref={markerRef} icon={icon}>
+          <Popup>Вы здесь!</Popup>
+        </Marker>
+      )}
+    </MapContainer>
+  );
 };
 
 export default MapComponent;
