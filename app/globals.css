@@ -50,3 +50,11 @@ body {
 .hide-scroll-bar::-webkit-scrollbar {
   display: none;
 }
+
+.leaflet-control-attribution {
+  display: none !important;
+}
+
+.leaflet-routing-container {
+  display: none !important;
+}
